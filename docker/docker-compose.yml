@@ -1,0 +1,53 @@
+networks:
+  admin-hub:
+    name: admin-hub
+
+services:
+  admin-hub-nginx:
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
+    container_name: admin-hub-nginx
+    depends_on:
+      - admin-hub-php
+      - admin-hub-mysql
+
+    ports:
+      - "5002:80"
+    volumes:
+      - ../src:/var/www/html
+    networks:
+      - admin-hub
+
+  admin-hub-php:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    container_name: admin-hub-php
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www/html
+    volumes:
+      - ../src:/var/www/html
+    privileged: true
+    networks:
+      - admin-hub
+
+  admin-hub-mysql:
+    image: mysql:8.0
+    container_name: admin-hub-mysql
+    ports:
+      - "4308:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: admin-hub-db
+      MYSQL_USER: admin-hub
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    networks:
+      - admin-hub
+
+volumes:
+  redis_data:
+    driver: local
