@@ -1,6 +1,7 @@
 <?php
 
-namespace App\CDN\Requests;
+namespace App\Cdn\Requests;
+
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\CDN\DTO\CreateCdnData;
