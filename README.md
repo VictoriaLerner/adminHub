@@ -1,73 +1,72 @@
-## Admin Hub — запуск проекта и тестов
+## Admin Hub — project and test setup
 
-**URL приложения**: http://localhost:5002
+App URL: http://localhost:5002
 
-### Требования
-- Docker и Docker Compose
+### Requirements
+- Docker and Docker Compose
 - GNU Make
-- (Опционально) Node.js и npm — обычно используются внутри контейнера через цели Makefile
+- (Optional) Node.js and npm — typically run inside the container via Makefile targets
 
-### Быстрый старт
-1) Скопируй `.env` в `src` (если его ещё нет):
+### Quick start
+1) Copy `.env` into `src` (if it’s not there yet):
 ```bash
-cp src/.env.example src/.env  # если пример доступен
+cp src/.env.example src/.env  # if the example exists
 ```
 
-2) Запусти и подготовь окружение одной командой:
+2) Spin up and prepare the environment with a single command:
 ```bash
 make init
 ```
-Что делает `init`:
-- Сносит и поднимает контейнеры с билдом образов
-- Выполняет `composer install` в PHP-контейнере
-- Генерирует `APP_KEY`
-- Прогоняет миграции с сидом (`migrate:fresh --seed`)
-- Устанавливает npm-пакеты и собирает фронт (`npm install && npm run build` в `src`)
+What `init` does:
+- Rebuilds and starts containers
+- Runs `composer install` inside the PHP container
+- Generates `APP_KEY`
+- Runs migrations with seed (`migrate:fresh --seed`)
+- Installs npm packages and builds the frontend (`npm install && npm run build` in `src`)
 
-3) Приложение будет доступно на `http://localhost:5002`
+3) The app will be available at `http://localhost:5002`
 
-### Полезные команды (Makefile)
+### Useful commands (Makefile)
 ```bash
-make up           # запустить контейнеры
-make down         # остановить контейнеры
-make rebuild      # пересобрать и запустить
-make bash         # войти в php-контейнер
-make dev-clean    # migrate:fresh --seed (полная очистка и сидинг БД)
-make npm-install  # npm install в папке src
-make npm-build    # npm run build в папке src
-make test         # запустить тесты (phpunit внутри контейнера)
+make up           # start containers
+make down         # stop containers
+make rebuild      # rebuild and start
+make bash         # enter the php container
+make dev-clean    # migrate:fresh --seed (full DB reset and seeding)
+make npm-install  # npm install in src
+make npm-build    # npm run build in src
+make test         # run tests (phpunit inside the container)
 ```
 
-### Тесты
-- Если контейнеры уже подняты — достаточно:
+### Tests
+- If containers are already running:
 ```bash
 make test
 ```
 
-- Если это первый запуск (холодный старт) — сначала подготовь окружение:
+- On first (cold) start, prepare the environment first:
 ```bash
 make init
-# далее можно сразу
+# then you can immediately
 make test
 ```
 
-- Пересоздавать данные перед каждым прогонами не нужно. Делай ресет БД только при необходимости (например, если поймал 401 из‑за токенов/сессий):
+- You don’t need to recreate data before every run. Reset the DB only when needed (e.g., if you hit a 401 due to tokens/sessions):
 ```bash
 make dev-clean
 make test
 ```
 
-### Доступ к контейнеру
+### Container access
 ```bash
-make bash  # попадёшь в /var/www/html (это ./src на хосте)
+make bash  # you’ll land in /var/www/html (mapped from ./src on the host)
 ```
 
-### Сервисы
+### Services
 - Nginx: `localhost:5002`
-- PHP (FPM): контейнер `admin-hub-php`
-- MySQL 8: порт `4308` на хосте, контейнер `admin-hub-mysql`
+- PHP (FPM): container `admin-hub-php`
+- MySQL 8: host port `4308`, container `admin-hub-mysql`
 
-### Примечания
-- Все команды берутся из `Makefile` — актуальные цели и поведение смотри в файле.
-- После изменений в коде обязательно прогоняй тесты (`make test`).
-
+### Notes
+- All commands are defined in the `Makefile` — check it for up-to-date targets and behavior.
+- After making code changes, always run tests (`make test`).
